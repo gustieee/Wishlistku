@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WishListKu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    </style>
+</head>
+<body class="bg-[#77B254] md: text-white font-['Poppins']">
+    <div class="flex flex-col px-5">
+        <div class="navbar flex justify-center items-center ">
+            <p class="font-semibold flex justify-center items-center py-5 text-2xl"><span class="font-['Kaushan_Script']">W</span>ishListKu</p>
+        </div> 
+        <div class="flex flex-col gap-5">
+            <div class="bg-[#5D8736] py-4 px-3 rounded-md">
+                <p class="text-2xl font-semibold">Hallo buddy👋</p>
+                <p>You can write down your wishlist here</p>
+            </div>
+            <div class="bg-[#5D8736] py-4 px-3 flex flex-col gap-5 rounded-md">
+                <p class="text-[20px] font-semibold">All Wishlist</p>
+                <div id="project-list" class="flex flex-col overflow-y-auto h-[300px] gap-2">
+                    <!-- <div class="bg-[#2f4b15] rounded-md py-3 px-4 flex justify-between items-center">
+                        <div class="flex gap-3">
+                            <p>Jadi apa aja</p>
+                            <input type="checkbox" class="w-10">
+                        </div>
+                        <button class="bg-red-600 py-2 rounded-md px-4">Delete</button>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="plus" onclick="showCreate()" class="fixed z-10 bottom-10 right-5 bg-[#3E7B27] w-fit py-3 px-6 rounded-md text-white">
+        <p class="text-5xl"> + </p>
+    </div>
+    <div id="input" class="absolute transition-all shadow-2xl opacity-0 pointer-events-none flex-col top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#5D8736] w-[300px] h-[200px] flex justify-center px-5 gap-5 rounded-md">
+        <div class="flex flex-col justify-center rounded-md">
+            <label for="" class="text-[20px] font-semibold">Enter your wishlist</label>
+            <input type="text" name="" id="wish-value" class="rounded-md py-3 px-2 text-black">
+        </div>
+        <button id="submit" onclick="Create()" class="bg-[#3E7B27] py-2 px-6">Create</button>
+    </div>
+    <div id="verif" class="flex opacity-0 transition-all pointer-events-none justify-center items-center absolute w-[300px] h-[200px] top-1/2 left-1/2 gap-3 -translate-x-1/2 -translate-y-1/2 bg-[#51772e]  flex-col">
+        <p class="text-6xl bg-white text-black w-20 h-20 flex justify-center items-center rounded-full">!</p>
+        <p>Are u sure u want to delete it?</p>
+        <div class="flex justify-around w-full">
+            <button class="bg-red-600 py-2 px-4 rounded-md" onclick="confirmDelete()">Delete</button>
+            <button class="bg-[#2f4b15] py-2 px-4 rounded-md" onclick="CancelDelete()">Cancel</button>
+        </div>
+    </div>
+    <marquee behavior="" class="mt-5 font-semibold text-[20px]" direction="">Created By: gustii.jpg😊😁</marquee>
+    <script>
+        let wishToDelete = null; // Variabel global untuk menyimpan ID yang akan dihapus
+    
+        function showCreate() {
+            const input = document.getElementById('input');
+            input.classList.toggle('opacity-0');
+            input.classList.toggle('pointer-events-none');
+        }
+    
+        function Create() {
+            const valueWish = document.getElementById('wish-value');
+    
+            if (valueWish.value == '') {
+                alert('Please fill in');
+                return;
+            }
+    
+            let WishList = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const newWish = {
+                id: Date.now(),
+                Wishlist: valueWish.value
+            };
+    
+            WishList.push(newWish);
+            localStorage.setItem('wishlist', JSON.stringify(WishList));
+    
+            alert(`${valueWish.value} successfully added to wishlist`);
+            valueWish.value = ''; 
+            showCreate();
+            loadWishList();
+        }
+    
+        function loadWishList() {
+            const projectList = document.getElementById('project-list');
+            projectList.innerHTML = '';
+    
+            let WishList = JSON.parse(localStorage.getItem('wishlist')) || [];
+    
+            WishList.forEach(wish => {
+                const div = document.createElement('div');
+                div.classList.add('bg-[#2f4b15]', 'rounded-md', 'py-3', 'px-4', 'flex', 'justify-between', 'items-center');
+    
+                div.innerHTML = `
+                    <div class="flex gap-3">
+                        <p>${wish.Wishlist}</p>
+                        <input type="checkbox" class="w-10">
+                    </div>
+                    <button class="bg-red-600 py-2 rounded-md px-4" onclick="showDeletePopup(${wish.id})">Delete</button>
+                `;
+    
+                projectList.appendChild(div);
+            });
+        }
+    
+        function showDeletePopup(id) {
+            wishToDelete = id; // Simpan ID wishlist yang akan dihapus
+            const verifPopup = document.getElementById('verif');
+            verifPopup.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function CancelDelete() {
+            const verifPopup = document.getElementById('verif')
+            verifPopup.classList.add('opacity-0', 'pointer-events-none')
+        }
+    
+        function confirmDelete() {
+            if (wishToDelete !== null) {
+                let WishList = JSON.parse(localStorage.getItem('wishlist')) || [];
+                WishList = WishList.filter(p => p.id !== wishToDelete);
+                localStorage.setItem('wishlist', JSON.stringify(WishList));
+                wishToDelete = null; // Reset variabel setelah penghapusan
+                closePopup();
+                loadWishList();
+            }
+        }
+    
+        function closePopup() {
+            const verifPopup = document.getElementById('verif');
+            verifPopup.classList.add('opacity-0', 'pointer-events-none');
+        }
+    
+        document.addEventListener("DOMContentLoaded", loadWishList);
+    </script>
+    
+</body>                           
+</html>
